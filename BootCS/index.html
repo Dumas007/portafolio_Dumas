@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Chatbot - Consulta de Pedidos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* (MANTENER TODOS LOS ESTILOS ORIGINALES IGUALES) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            color: #4f46e5;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .login-container h1 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .login-container p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .order-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .order-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #3730a3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .example-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .example-box p {
+            margin: 0;
+            color: #4b5563;
+        }
+
+        .loading {
+            display: none;
+            color: #4f46e5;
+            margin: 25px 0;
+            font-size: 16px;
+        }
+
+        .error-box {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid #fca5a5;
+        }
+
+        .chatbot-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .customer-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 30px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar h3 {
+            color: #4f46e5;
+            margin-bottom: 25px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-item {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 18px 22px;
+            border-radius: 18px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            background: #f1f5f9;
+            color: #334155;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message {
+            background: #4f46e5;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .message-content {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .message-time {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .input-area {
+            padding: 25px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+            background: #f8fafc;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .send-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            width: 60px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+
+        .send-btn:hover {
+            background: #3730a3;
+            transform: scale(1.05);
+        }
+
+        .loading-chat {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #4f46e5;
+            font-size: 18px;
+            gap: 15px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 300px;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .chatbot-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .chat-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .login-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 25px 15px;
+            }
+            
+            .logo {
+                font-size: 48px;
+            }
+            
+            .chat-header h1 {
+                font-size: 20px;
+            }
+            
+            .messages-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- La aplicación se cargará aquí dinámicamente -->
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
+        const CONFIG = {
+            API_URL: 'api.php',
+            DEFAULT_ORDER: '0-44541',
+            APP_NAME: 'Chatbot de Pedidos',
+            VERSION: '2.0.0'
+        };
+        
+        // ============================================
+        // ESTADO DE LA APLICACIÓN
+        // ============================================
+        let appState = {
+            customerData: null,
+            currentView: 'login', // 'login', 'loading', 'chat', 'error'
+            messages: [],
+            isInitialized: false
+        };
+        
+        // ============================================
+        // FUNCIONES UTILITARIAS
+        // ============================================
+        
+        function safeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text.toString();
+            return div.innerHTML;
+        }
+        
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+        
+        function isValidOrder(order) {
+            return order && order.trim().length >= 2;
+        }
+        
+        // ============================================
+        // VISTAS DE LA APLICACIÓN
+        // ============================================
+        
+        function showLoginView(errorMessage = '') {
+            appState.currentView = 'login';
+            
+            const html = `
+                <div class="login-container">
+                    <div class="logo">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    
+                    <h1>Consulta tu Pedido</h1>
+                    <p>Ingresa tu <strong>número de pedido</strong> para ver el estado actual y hablar con nuestro asistente virtual.</p>
+                    
+                    ${errorMessage ? `
+                        <div class="error-box">
+                            <i class="fas fa-exclamation-circle"></i>
+                            ${safeHtml(errorMessage)}
+                        </div>
+                    ` : ''}
+                    
+                    <input type="text" 
+                           id="orderInput" 
+                           class="order-input" 
+                           placeholder="Ejemplo: 0-44541"
+                           value="${CONFIG.DEFAULT_ORDER}"
+                           autocomplete="off">
+                    
+                    <button id="loginButton" class="btn">
+                        <i class="fas fa-search"></i> Consultar Pedido
+                    </button>
+                    
+                    <div class="loading" id="loginLoading">
+                        <i class="fas fa-spinner fa-spin"></i> Buscando tu información...
+                    </div>
+                    
+                    <div class="example-box">
+                        <p><strong>📋 Pedidos de prueba:</strong></p>
+                        <p style="margin-top: 8px; font-size: 14px;">
+                            • <strong>${CONFIG.DEFAULT_ORDER}</strong> - Erick Dumas<br>
+                            • <strong>0-44545</strong> - Calos Garcia<br>
+                            • <strong>0-445400</strong> - Sofia Mencos<br>
+                            • <strong>0-445444</strong> - Axel<br>
+                            • <strong>Pe78787</strong> - Abuela
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('app').innerHTML = html;
+            
+            // Configurar eventos
+            const orderInput = document.getElementById('orderInput');
+            const loginButton = document.getElementById('loginButton');
+            const loading = document.getElementById('loginLoading');
+            
+            if (orderInput && loginButton) {
+                loginButton.addEventListener('click', () => handleLogin(orderInput, loading));
+                orderInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleLogin(orderInput, loading);
+                });
+                orderInput.focus();
+                orderInput.select();
+            }
+        }
+        
+        function showLoadingView(message = 'Consultando Google Sheets...') {
+            appState.currentView = 'loading';
+            
+            document.getElementById('app').innerHTML = `
+                <div class="loading-chat">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>${safeHtml(message)}</span>
+                </div>
+            `;
+        }
+        
+        function showChatView() {
+            if (!appState.customerData || appState.currentView === 'chat') return;
+            
+            appState.currentView = 'chat';
+            appState.isInitialized = true;
+            
+            const customer = appState.customerData;
+            
+            const html = `
+                <div class="chatbot-container">
+                    <!-- ENCABEZADO -->
+                    <div class="chat-header">
+                        <h1>
+                            <i class="fas fa-robot"></i>
+                            ${CONFIG.APP_NAME}
+                        </h1>
+                        <div class="customer-badge">
+                            <i class="fas fa-box"></i>
+                            Pedido: ${safeHtml(customer.order)}
+                        </div>
+                    </div>
+                    
+                    <!-- ÁREA DE CHAT -->
+                    <div class="chat-area">
+                        <!-- PANEL LATERAL CON INFORMACIÓN -->
+                        <div class="sidebar">
+                            <h3>
+                                <i class="fas fa-clipboard-list"></i>
+                                Detalles del Pedido
+                            </h3>
+                            
+                            <div class="info-card">
+                                <div class="info-item">
+                                    <span class="info-label">Número de Pedido:</span>
+                                    <span class="info-value">${safeHtml(customer.order)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Cliente:</span>
+                                    <span class="info-value">${safeHtml(customer.name)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Email:</span>
+                                    <span class="info-value">${safeHtml(customer.email)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Teléfono:</span>
+                                    <span class="info-value">${safeHtml(customer.phone)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Estado:</span>
+                                    <span class="status-badge">${safeHtml(customer.status)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Dirección Entrega:</span>
+                                    <span class="info-value">${safeHtml(customer.deliveryAddress)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Dirección Pick-up:</span>
+                                    <span class="info-value">${safeHtml(customer.pickupAddress)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Fecha del Pedido:</span>
+                                    <span class="info-value">${safeHtml(customer.date)}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">Última Actualización:</span>
+                                    <span class="info-value">${safeHtml(customer.update)}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 30px; font-size: 14px; color: #6b7280; text-align: center;">
+                                <p><i class="fas fa-info-circle"></i> Puedes preguntar sobre:</p>
+                                <p style="margin-top: 10px;">
+                                    • Estado del pedido<br>
+                                    • Tiempo de entrega<br>
+                                    • Direcciones<br>
+                                    • Contacto y soporte
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- CHAT PRINCIPAL -->
+                        <div class="main-chat">
+                            <!-- MENSAJES -->
+                            <div class="messages-container" id="messagesContainer">
+                                <!-- Mensaje inicial -->
+                                <div class="message bot-message">
+                                    <div class="message-header">
+                                        <i class="fas fa-robot"></i>
+                                        <span>Asistente Virtual</span>
+                                    </div>
+                                    <div class="message-content">
+                                        ¡Hola ${safeHtml(customer.name)}! 👋 Soy tu asistente virtual. 
+                                        Veo que tienes el pedido <strong>${safeHtml(customer.order)}</strong> 
+                                        con estado: <strong>${safeHtml(customer.status)}</strong>.
+                                        <br><br>
+                                        ¿En qué puedo ayudarte hoy?
+                                    </div>
+                                    <div class="message-time">${getCurrentTime()}</div>
+                                </div>
+                            </div>
+                            
+                            <!-- ÁREA DE ENTRADA -->
+                            <div class="input-area">
+                                <input type="text" 
+                                       id="chatInput" 
+                                       class="chat-input" 
+                                       placeholder="Escribe tu pregunta aquí..."
+                                       autocomplete="off">
+                                <button id="sendButton" class="send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('app').innerHTML = html;
+            
+            // Inicializar chat
+            initializeChat();
+        }
+        
+        function showErrorView(message, retryCallback = null) {
+            appState.currentView = 'error';
+            
+            const html = `
+                <div class="login-container">
+                    <div style="color: #dc2626; font-size: 64px; margin-bottom: 20px;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    
+                    <h1 style="color: #dc2626;">Ha ocurrido un error</h1>
+                    
+                    <div class="error-box">
+                        <p><strong>${safeHtml(message)}</strong></p>
+                    </div>
+                    
+                    <button onclick="location.reload()" class="btn" style="margin-bottom: 15px;">
+                        <i class="fas fa-redo"></i> Recargar Página
+                    </button>
+                    
+                    ${retryCallback ? `
+                        <button onclick="${retryCallback}" class="btn" style="background: #6b7280;">
+                            <i class="fas fa-history"></i> Intentar de nuevo
+                        </button>
+                    ` : ''}
+                    
+                    <div class="example-box" style="margin-top: 25px;">
+                        <p><strong>💡 Pedidos disponibles:</strong></p>
+                        <p style="margin-top: 10px; font-size: 14px;">
+                            0-44541, 0-44545, 0-445400, 0-445444, Pe78787
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('app').innerHTML = html;
+        }
+        
+        // ============================================
+        // MANEJO DE EVENTOS
+        // ============================================
+        
+        async function handleLogin(orderInput, loadingElement) {
+            const order = orderInput.value.trim();
+            
+            if (!order) {
+                showLoginView('Por favor ingresa un número de pedido');
+                return;
+            }
+            
+            if (!isValidOrder(order)) {
+                showLoginView('El número de pedido es muy corto');
+                return;
+            }
+            
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+            
+            try {
+                await loadOrderData(order);
+            } catch (error) {
+                console.error('Error en login:', error);
+                showLoginView('Error al cargar los datos. Intenta con: 0-44541');
+                
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+            }
+        }
+        
+        async function loadOrderData(orderNumber) {
+            showLoadingView('Buscando pedido ' + orderNumber + '...');
+            
+            try {
+                const response = await fetch(`${CONFIG.API_URL}?order=${encodeURIComponent(orderNumber)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    appState.customerData = result.data;
+                    appState.messages = [];
+                    showChatView();
+                } else {
+                    throw new Error(result.error || 'No se encontró el pedido');
+                }
+                
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                
+                if (error.message.includes('No se encontró')) {
+                    showErrorView(
+                        `No se encontró el pedido: <strong>${orderNumber}</strong>`,
+                        `showLoginView('Pedido no encontrado. Usa: 0-44541')`
+                    );
+                } else {
+                    showErrorView(
+                        'Error de conexión: ' + error.message,
+                        `loadOrderData('${orderNumber}')`
+                    );
+                }
+            }
+        }
+        
+        function initializeChat() {
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            const messagesContainer = document.getElementById('messagesContainer');
+            
+            if (!chatInput || !sendButton || !messagesContainer) {
+                console.error('Elementos del chat no encontrados');
+                setTimeout(initializeChat, 500);
+                return;
+            }
+            
+            // Evento para enviar con botón
+            sendButton.addEventListener('click', () => handleSendMessage(chatInput, messagesContainer));
+            
+            // Evento para enviar con Enter
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleSendMessage(chatInput, messagesContainer);
+                }
+            });
+            
+            // Enfocar el input automáticamente
+            setTimeout(() => {
+                chatInput.focus();
+            }, 300);
+            
+            // Agregar mensaje inicial al historial
+            appState.messages.push({
+                type: 'bot',
+                content: `¡Hola ${appState.customerData.name}! 👋 Veo que tienes el pedido ${appState.customerData.order} con estado: ${appState.customerData.status}. ¿En qué puedo ayudarte hoy?`,
+                time: getCurrentTime()
+            });
+        }
+        
+        function handleSendMessage(chatInput, messagesContainer) {
+            const message = chatInput.value.trim();
+            
+            if (!message) {
+                chatInput.focus();
+                return;
+            }
+            
+            // Agregar mensaje del usuario
+            addMessageToChat('user', message, messagesContainer);
+            
+            // Limpiar input
+            chatInput.value = '';
+            chatInput.focus();
+            
+            // Procesar mensaje y generar respuesta
+            setTimeout(() => {
+                const botResponse = generateBotResponse(message);
+                addMessageToChat('bot', botResponse, messagesContainer);
+            }, 800);
+        }
+        
+        function addMessageToChat(type, content, container) {
+            const messageId = Date.now();
+            const time = getCurrentTime();
+            
+            // Agregar al estado
+            appState.messages.push({
+                id: messageId,
+                type: type,
+                content: content,
+                time: time
+            });
+            
+            // Crear elemento HTML
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}-message`;
+            messageElement.innerHTML = `
+                <div class="message-header">
+                    <i class="fas fa-${type === 'user' ? 'user' : 'robot'}"></i>
+                    <span>${type === 'user' ? 'Tú' : 'Asistente Virtual'}</span>
+                </div>
+                <div class="message-content">
+                    ${type === 'bot' ? content : safeHtml(content)}
+                </div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            // Agregar al contenedor
+            container.appendChild(messageElement);
+            
+            // Scroll al final
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 100);
+        }
+        
+        function generateBotResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            const customer = appState.customerData;
+            
+            if (message.includes('estado') || message.includes('cómo va')) {
+                return `El pedido <strong>${safeHtml(customer.order)}</strong> se encuentra en estado: <strong>${safeHtml(customer.status)}</strong>.`;
+            }
+            else if (message.includes('tiempo') || message.includes('cuándo')) {
+                return `La fecha del pedido es: <strong>${safeHtml(customer.date)}</strong>.`;
+            }
+            else if (message.includes('dirección') || message.includes('dónde') || message.includes('ubicación')) {
+                return `Dirección de entrega: <strong>${safeHtml(customer.deliveryAddress)}</strong><br>
+                        Dirección de pick-up: <strong>${safeHtml(customer.pickupAddress)}</strong>`;
+            }
+            else if (message.includes('teléfono') || message.includes('contacto')) {
+                return `Teléfono de contacto: <strong>${safeHtml(customer.phone)}</strong><br>
+                        Email: <strong>${safeHtml(customer.email)}</strong>`;
+            }
+            else if (message.includes('cliente') || message.includes('nombre')) {
+                return `Cliente: <strong>${safeHtml(customer.name)}</strong>`;
+            }
+            else if (message.includes('hola') || message.includes('buenos')) {
+                return `¡Hola ${safeHtml(customer.name)}! 😊 ¿En qué puedo ayudarte con tu pedido <strong>${safeHtml(customer.order)}</strong>?`;
+            }
+            else if (message.includes('gracias') || message.includes('bye')) {
+                return `¡De nada ${safeHtml(customer.name)}! Que tengas un excelente día. ✨`;
+            }
+            else {
+                return `Puedo ayudarte con información sobre:<br>
+                        • Estado del pedido: <strong>${safeHtml(customer.status)}</strong><br>
+                        • Direcciones de entrega y pick-up<br>
+                        • Datos de contacto<br>
+                        • Cualquier duda sobre tu compra`;
+            }
+        }
+        
+        // ============================================
+        // INICIALIZACIÓN DE LA APLICACIÓN
+        // ============================================
+        
+        function initializeApp() {
+            console.log(`${CONFIG.APP_NAME} v${CONFIG.VERSION}`);
+            
+            // Verificar si hay número de pedido en la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderFromURL = urlParams.get('order');
+            
+            if (orderFromURL && isValidOrder(orderFromURL)) {
+                loadOrderData(orderFromURL);
+            } else {
+                showLoginView();
+            }
+        }
+        
+        // Iniciar aplicación
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        
+        // Exportar funciones para uso global
+        window.showLoginView = showLoginView;
+        window.loadOrderData = loadOrderData;
+    </script>
+</body>
+</html>
